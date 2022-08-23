@@ -9,12 +9,37 @@ export default function createGame() {
         }
     }
 
+    const livres = {};
+
+    for(let i = 0; i < 10; i++) {
+        for(let j = 0; j < 10; j++) {
+            let id = i+'-'+j;
+
+            livres[id] = id;
+        }
+    }
+
     const observers = [];
+
+    function randomProperty(obj) {
+        var keys = Object.keys(obj);
+        return obj[keys[ keys.length * Math.random() << 0]];
+    }
+
+    function addRandomFruit() {
+        let escolhidostring = randomProperty(livres);
+        if(escolhidostring) {
+            const position = escolhidostring.split('-');
+            delete livres[escolhidostring];
+
+            addFruit({ fruitX: position[0], fruitY: position[1], fruitId: escolhidostring});
+        }
+    }
 
     function start() {
         const frequency = 1000;
-
-        setInterval(addFruit, frequency);
+                
+        setInterval(addRandomFruit, frequency);
     }
 
     function subscribe(observerFunction) {
@@ -60,11 +85,12 @@ export default function createGame() {
         });
     }
 
-
     function addFruit(command) {
         const fruitId = command ? command.fruitId : Math.floor(Math.random() * 10000000);
         const fruitX = command ? command.fruitX : Math.floor(Math.random() * state.screen.width);
         const fruitY = command ? command.fruitY : Math.floor(Math.random() * state.screen.height);
+
+        //addObject(fruitX, fruitY, fruitId);
 
         state.fruits[fruitId] = {
             x: fruitX,
@@ -76,12 +102,14 @@ export default function createGame() {
             fruitId: fruitId,
             fruitX: fruitX,
             fruitY: fruitY
-        });
+        });        
     }
 
     function removeFruit(command) {
         const fruitId = command.fruitId;
 
+        deleteObject(state.fruits[fruitId].x, state.fruits[fruitId].y);
+        
         delete state.fruits[fruitId];
 
         notifyAll({
